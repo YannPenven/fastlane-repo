@@ -82,10 +82,9 @@ end
 desc "git push"
 lane :apps_git do
 
-  ensure_git_status_clean
   clean_build_artifacts
-
-  commit_version_bump message: "Deploying version 154."
-  add_git_tag tag: version_number
+  git_add path: "."
+  git_commit message: "test"
+  add_git_tag tag: "145"
   push_to_git_remote
 end
