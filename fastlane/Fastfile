@@ -1,0 +1,91 @@
+desc "Match lane"
+lane :apps_match do
+
+    ENV["MATCH_FORCE_ENTERPRISE"] = "1"
+
+    match(
+        git_url: "https://github.com/iut-lyon1-2016/certificates.git",
+        type: "development",
+        app_identifier: "fr.appsolute.IUTDemo201613",
+        username: "iut-2016@appsolute.fr",
+        readonly: "true"
+        )
+
+    match(
+        git_url: "https://github.com/iut-lyon1-2016/certificates.git",
+        type: "enterprise",
+        app_identifier: "fr.appsolute.IUTDemo201613",
+        username: "iut-2016@appsolute.fr",
+        readonly: "true"
+        )
+
+end
+
+desc "Distribute a new app"
+lane :apps_build do
+
+    gym(
+        workspace: "DemoIUT.xcworkspace",
+        scheme: "DemoIUT",
+        clean: true,
+        configuration: "Release",
+        use_legacy_build_api: true
+    )
+
+
+    crashlytics(
+        api_token: "fc9d87b2efd9490e1a216989a7ebb86e7d59dfed",
+        build_secret: "34fe58a4e2ba0b70c2542972f64f088e9b50c159f18624ff3bd2ac2f453874f4",
+        emails: ["william@appsolute.fr"]
+  )
+
+end
+
+desc "Mesage slack"
+lane :apps_slackM do
+  slack(
+    message: "success push slack notification from fastlane",
+    success: true,
+    slack_url: "https://hooks.slack.com/services/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",
+    channel: ENV["#fastlane-messages"]
+  )
+end
+
+desc "Edit changelog"
+lane :apps_log do
+
+  changelog = prompt(text: "Enter the change log: ", multi_line_end_keyword: "END")
+end
+
+desc "publish on Crashlytics"
+lane :apps_crash do
+
+  increment_build_number
+
+  gym(
+      workspace: "DemoIUT.xcworkspace",
+      scheme: "DemoIUT",
+      clean: true,
+      configuration: "Release",
+      use_legacy_build_api: true
+  )
+
+  crashlytics(
+      api_token: "fc9d87b2efd9490e1a216989a7ebb86e7d59dfed",
+      build_secret: "34fe58a4e2ba0b70c2542972f64f088e9b50c159f18624ff3bd2ac2f453874f4",
+      groups: ["iutlyon12016"],
+      notes: "Build by Yann"
+)
+end
+
+
+desc "git push"
+lane :apps_git do
+
+  ensure_git_status_clean
+  clean_build_artifacts
+
+  commit_version_bump message: "Deploying version 154."
+  add_git_tag tag: version_number
+  push_to_git_remote
+end
