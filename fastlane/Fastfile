@@ -85,6 +85,5 @@ lane :apps_git do
   clean_build_artifacts
   git_add path: "."
   git_commit message: "test"
-  add_git_tag tag: "145"
   push_to_git_remote
 end
