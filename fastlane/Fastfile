@@ -23,7 +23,9 @@ end
 
 desc "Distribute a new app"
 lane :apps_build do
-
+    apps_log
+    git_pull(only_tags: true)
+    apps_crash
     gym(
         workspace: "DemoIUT.xcworkspace",
         scheme: "DemoIUT",
@@ -38,7 +40,8 @@ lane :apps_build do
         build_secret: "34fe58a4e2ba0b70c2542972f64f088e9b50c159f18624ff3bd2ac2f453874f4",
         emails: ["william@appsolute.fr"]
   )
-
+  apps_slackM
+  apps_git
 end
 
 desc "Mesage slack"
@@ -61,7 +64,6 @@ desc "publish on Crashlytics"
 lane :apps_crash do
 
   increment_build_number
-
   gym(
       workspace: "DemoIUT.xcworkspace",
       scheme: "DemoIUT",
